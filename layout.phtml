@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockFlow - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <?php
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+    if ($base === '') { $base = '/'; }
+    $cssPath = $base === '/' ? $base . 'assets/css/style.css' : $base . '/assets/css/style.css';
+    ?>
+    <link rel="stylesheet" href="<?php echo $cssPath; ?>">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar p-3">
+        <div class="sidebar-brand mb-4 pb-3 border-bottom border-secondary">
+            <h4 class="text-white"><i class="bi bi-box-seam"></i> <span>StockFlow</span></h4>
+            <small class="text-muted">Management System</small>
+        </div>
+        
+        <div class="nav flex-column">
+            <a href="index.php" class="nav-link text-white mb-2 bg-primary rounded">
+                <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+            </a>
+            <a href="products/index.php" class="nav-link text-muted mb-2">
+                <i class="bi bi-box"></i> <span>Product Inventory</span>
+            </a>
+            <a href="orders/index.php" class="nav-link text-muted mb-2">
+                <i class="bi bi-cart"></i> <span>Orders</span>
+            </a>
+            <a href="suppliers/index.php" class="nav-link text-muted mb-2">
+                <i class="bi bi-truck"></i> <span>Suppliers</span>
+            </a>
+            <a href="reports/index.php" class="nav-link text-muted">
+                <i class="bi bi-graph-up"></i> <span>Reports</span>
+            </a>
+        </div>
+        <!-- User section at bottom -->
+        <div class="mt-4 pt-3 border-top border-secondary">
+            <div class="text-white mb-2">
+                <small class="text-muted">Logged in as</small><br>
+                <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></strong>
+            </div>
+            <a href="auth/logout/" class="btn btn-outline-danger btn-sm w-100">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-white mb-1">Dashboard</h2>
+                <p class="text-muted mb-0">Welcome to StockFlow Inventory Management</p>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Last updated: <?php echo date('M j, Y g:i A'); ?></small>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <!-- Products -->
+            <div class="col-md-3">
+                <div class="stats-card card-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small>Total Products</small>
+                            <h3><?php echo $stats['products']['total_products']; ?></h3>
+                            <small>
+                                <span class="text-success"><?php echo $stats['products']['in_stock']; ?> in stock</span> • 
+                                <span class="text-warning"><?php echo $stats['products']['low_stock']; ?> low stock</span>
+                            </small>
+                        </div>
+                        <i class="bi bi-box"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders -->
+            <div class="col-md-3">
+                <div class="stats-card card-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small>Total Orders</small>
+                            <h3><?php echo $stats['orders']['total_orders']; ?></h3>
+                            <small>
+                                <span class="text-info"><?php echo $stats['orders']['processing_orders']; ?> processing</span> • 
+                                <span class="text-success"><?php echo $stats['orders']['shipped_orders']; ?> shipped</span>
+                            </small>
+                        </div>
+                        <i class="bi bi-cart"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suppliers -->
+            <div class="col-md-3">
+                <div class="stats-card card-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small>Suppliers</small>
+                            <h3><?php echo $stats['suppliers']['total_suppliers']; ?></h3>
+                            <small>
+                                <span class="text-success"><?php echo $stats['suppliers']['active_suppliers']; ?> active</span> • 
+                                <span class="text-muted"><?php echo $stats['suppliers']['total_suppliers'] - $stats['suppliers']['active_suppliers']; ?> inactive</span>
+                            </small>
+                        </div>
+                        <i class="bi bi-truck"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Low Stock Alert -->
+            <div class="col-md-3">
+                <div class="stats-card card-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small>Low Stock Alerts</small>
+                            <h3><?php echo $stats['products']['low_stock']; ?></h3>
+                            <small>Products need restocking</small>
+                        </div>
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Quick Actions -->
+            <div class="col-md-6">
+                <div class="quick-actions">
+                    <h5 class="text-white mb-4">Quick Actions</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="products/index.php" class="btn btn-primary w-100 py-3">
+                                <i class="bi bi-box fs-4 d-block mb-2"></i>
+                                Manage Products
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="orders/index.php" class="btn btn-success w-100 py-3">
+                                <i class="bi bi-cart fs-4 d-block mb-2"></i>
+                                View Orders
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="suppliers/index.php" class="btn btn-info w-100 py-3">
+                                <i class="bi bi-truck fs-4 d-block mb-2"></i>
+                                Suppliers
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="reports/index.php" class="btn btn-warning w-100 py-3">
+                                <i class="bi bi-graph-up fs-4 d-block mb-2"></i>
+                                Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-md-6">
+                <div class="recent-activity">
+                    <h5 class="text-white mb-4">Recent Activity</h5>
+                    <div class="list-group">
+                        <?php if (!empty($recent_products)): ?>
+                            <?php foreach($recent_products as $product): ?>
+                            <div class="list-group-item bg-transparent border-secondary text-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-box text-primary me-2"></i>
+                                    <?php echo htmlspecialchars($product['product_name']); ?>
+                                </div>
+                                <small class="text-muted"><?php echo date('M j', strtotime($product['last_updates'])); ?></small>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No recent activity
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="recent-activity">
+                    <h5 class="text-white mb-4">System Status</h5>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <i class="bi bi-database text-success fs-1"></i>
+                                <h6 class="mt-2 mb-1">Database</h6>
+                                <small class="text-success">Connected</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-check text-success fs-1"></i>
+                                <h6 class="mt-2 mb-1">Security</h6>
+                                <small class="text-success">Protected</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <i class="bi bi-lightning-charge text-warning fs-1"></i>
+                                <h6 class="mt-2 mb-1">Performance</h6>
+                                <small class="text-warning">Optimal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-arrow-up text-info fs-1"></i>
+                                <h6 class="mt-2 mb-1">Backup</h6>
+                                <small class="text-info">Auto-enabled</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

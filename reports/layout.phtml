@@ -1,0 +1,262 @@
+<?php include '../includes/header.php'; ?>
+<link rel="stylesheet" href="../assets/css/style.css">
+<?php include '../includes/sidebar.php'; ?>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white">Reports & Analytics</h2>
+        <div class="btn-group">
+            <a href="index.php?export_csv=1" class="btn btn-outline-success">
+                <i class="bi bi-file-earmark-excel"></i> Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <?php if (isset($_GET['message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?php echo htmlspecialchars($_GET['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <!-- Overview Statistics -->
+    <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card card-1">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Total Products</small>
+                        <h3><?php echo $reportsData['products']['total_products']; ?></h3>
+                    </div>
+                    <i class="bi bi-box fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+            <div class="col-md-3">
+                <div class="stats-card card-2">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Total Orders</small>
+                        <h3><?php echo $reportsData['orders']['total_orders']; ?></h3>
+                    </div>
+                    <i class="bi bi-cart fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+            <div class="col-md-3">
+                <div class="stats-card card-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Active Suppliers</small>
+                        <h3><?php echo $reportsData['suppliers']['active_suppliers']; ?></h3>
+                    </div>
+                    <i class="bi bi-people fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+            <div class="col-md-3">
+                <div class="stats-card card-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Low Stock Alerts</small>
+                        <h3><?php echo $reportsData['products']['low_stock_products']; ?></h3>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Reports -->
+    <div class="row">
+        <!-- Products Report -->
+        <div class="col-md-6 mb-4">
+            <div class="table-container">
+                <div class="p-3 border-bottom border-secondary">
+                    <h5 class="text-white mb-0">
+                        <i class="bi bi-box me-2"></i>Products Overview
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-end border-secondary">
+                                <h4 class="text-success mb-1"><?php echo $reportsData['products']['in_stock_products']; ?></h4>
+                                <small class="text-muted">In Stock</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end border-secondary">
+                                <h4 class="text-warning mb-1"><?php echo $reportsData['products']['low_stock_products']; ?></h4>
+                                <small class="text-muted">Low Stock</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-danger mb-1"><?php echo $reportsData['products']['out_of_stock_products']; ?></h4>
+                            <small class="text-muted">Out of Stock</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6 class="text-white">Products by Category</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <?php foreach ($reportsData['products_by_category'] as $category): ?>
+                                    <tr>
+                                        <td class="text-white"><?php echo ucfirst($category['category']); ?></td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary"><?php echo $category['product_count']; ?> products</span>
+                                        </td>
+                                        <td class="text-end text-muted">
+                                            <?php echo $category['total_quantity']; ?> units
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Report -->
+        <div class="col-md-6 mb-4">
+            <div class="table-container">
+                <div class="p-3 border-bottom border-secondary">
+                    <h5 class="text-white mb-0">
+                        <i class="bi bi-cart me-2"></i>Orders Overview
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="border-end border-secondary">
+                                <h4 class="text-info mb-1"><?php echo $reportsData['orders']['incoming_orders']; ?></h4>
+                                <small class="text-muted">Incoming</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-warning mb-1"><?php echo $reportsData['orders']['outgoing_orders']; ?></h4>
+                            <small class="text-muted">Outgoing</small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="text-white">Order Status Distribution</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-warning">Processing</span></td>
+                                    <td class="text-end text-white"><?php echo $reportsData['orders']['processing_orders']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">Shipped</span></td>
+                                    <td class="text-end text-white"><?php echo $reportsData['orders']['shipped_orders']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success">Delivered</span></td>
+                                    <td class="text-end text-white"><?php echo $reportsData['orders']['delivered_orders']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">Cancelled</span></td>
+                                    <td class="text-end text-white"><?php echo $reportsData['orders']['cancelled_orders']; ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suppliers Report -->
+        <div class="col-md-6 mb-4">
+            <div class="table-container">
+                <div class="p-3 border-bottom border-secondary">
+                    <h5 class="text-white mb-0">
+                        <i class="bi bi-people me-2"></i>Suppliers Overview
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="border-end border-secondary">
+                                <h4 class="text-success mb-1"><?php echo $reportsData['suppliers']['active_suppliers']; ?></h4>
+                                <small class="text-muted">Active</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-danger mb-1"><?php echo $reportsData['suppliers']['inactive_suppliers']; ?></h4>
+                            <small class="text-muted">Inactive</small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="text-white">Top Suppliers</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <?php foreach ($reportsData['top_suppliers'] as $supplier): ?>
+                                <tr>
+                                    <td class="text-white"><?php echo htmlspecialchars($supplier['supplier_name']); ?></td>
+                                    <td class="text-end">
+                                        <span class="badge bg-primary"><?php echo $supplier['products_count']; ?> products</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <?php
+                                        $statusClass = $supplier['status'] == 'Active' ? 'bg-success' : 'bg-danger';
+                                        ?>
+                                        <span class="badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($supplier['status']); ?></span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Stock Movements -->
+        <div class="col-md-6 mb-4">
+            <div class="table-container">
+                <div class="p-3 border-bottom border-secondary">
+                    <h5 class="text-white mb-0">
+                        <i class="bi bi-clock me-2"></i>Recent Stock Updates
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <?php foreach ($reportsData['recent_stock'] as $product): ?>
+                                <tr>
+                                    <td class="text-white"><?php echo htmlspecialchars($product['product_name']); ?></td>
+                                    <td class="text-end">
+                                        <?php
+                                        $statusClass = 'text-success';
+                                        if ($product['status'] == 'low stock') $statusClass = 'text-warning';
+                                        if ($product['status'] == 'out of stock') $statusClass = 'text-danger';
+                                        ?>
+                                        <span class="<?php echo $statusClass; ?>"><?php echo $product['quantity']; ?> units</span>
+                                    </td>
+                                    <td class="text-end text-muted">
+                                        <small><?php echo date('M j', strtotime($product['last_updates'])); ?></small>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<?php include '../includes/footer.php'; ?>

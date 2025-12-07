@@ -1,0 +1,240 @@
+<?php include '../includes/header.php'; ?>
+<link rel="stylesheet" href="../assets/css/style.css">
+<?php include '../includes/sidebar.php'; ?>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white">Order Management</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+            <i class="bi bi-plus-circle"></i> Add New Order
+        </button>
+    </div>
+
+    <!-- Success Message -->
+    <?php if (isset($_GET['message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?php echo htmlspecialchars($_GET['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card card-1">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Total Orders</small>
+                        <h3><?php echo $stats['total_orders']; ?></h3>
+                    </div>
+                    <i class="bi bi-cart fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card card-2">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Incoming Orders</small>
+                        <h3><?php echo $stats['incoming_orders']; ?></h3>
+                    </div>
+                    <i class="bi bi-box-arrow-in-down fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card card-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Outgoing Orders</small>
+                        <h3><?php echo $stats['outgoing_orders']; ?></h3>
+                    </div>
+                    <i class="bi bi-box-arrow-up fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card card-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Processing</small>
+                        <h3><?php echo $stats['processing_orders']; ?></h3>
+                    </div>
+                    <i class="bi bi-clock fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-container">
+        <!-- Search Bar -->
+        <div class="p-3 border-bottom border-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="search-box position-relative">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" class="form-control ps-5" placeholder="Search orders..." id="searchInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ORDER ID</th>
+                        <th>TYPE</th>
+                        <th>STATUS</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>ITEMS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($orders as $order): ?>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-white"><?php echo htmlspecialchars($order['order_id']); ?></div>
+                        </td>
+                        <td>
+                            <?php
+                            $typeClass = $order['type'] == 'Incoming' ? 'bg-success' : 'bg-primary';
+                            ?>
+                            <span class="badge <?php echo $typeClass; ?>">
+                                <?php echo htmlspecialchars($order['type']); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php
+                            $statusClass = 'bg-secondary';
+                            if ($order['status'] == 'Shipped') $statusClass = 'bg-info';
+                            if ($order['status'] == 'Delivered') $statusClass = 'bg-success';
+                            if ($order['status'] == 'Processing') $statusClass = 'bg-warning';
+                            if ($order['status'] == 'Cancelled') $statusClass = 'bg-danger';
+                            ?>
+                            <span class="badge <?php echo $statusClass; ?>">
+                                <?php echo htmlspecialchars($order['status']); ?>
+                            </span>
+                        </td>
+                        <td><?php echo date('M j, Y', strtotime($order['date_order'])); ?></td>
+                        <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
+                        <td>
+                            <span class="badge bg-dark"><?php echo $order['items_count']; ?> items</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <!-- Status Update Dropdown -->
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                    <ul class="dropdown-menu bg-dark">
+                                        <li>
+                                            <form method="POST" class="d-inline">
+                                                <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
+                                                <input type="hidden" name="status" value="Processing">
+                                                <button type="submit" name="update_status" class="dropdown-item text-white">Mark as Processing</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" class="d-inline">
+                                                <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
+                                                <input type="hidden" name="status" value="Shipped">
+                                                <button type="submit" name="update_status" class="dropdown-item text-white">Mark as Shipped</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" class="d-inline">
+                                                <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
+                                                <input type="hidden" name="status" value="Delivered">
+                                                <button type="submit" name="update_status" class="dropdown-item text-white">Mark as Delivered</button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider bg-secondary"></li>
+                                        <li>
+                                            <a href="index.php?delete_id=<?php echo $order['order_id']; ?>" 
+                                               class="dropdown-item text-danger"
+                                               onclick="return confirm('Are you sure you want to delete this order?')">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+       
+        
+    </div>
+</div>
+
+<!-- Add Order Modal -->
+<div class="modal fade" id="addOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Order</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Order ID</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-white" name="order_id" required
+                               placeholder="e.g., #10525">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Order Type</label>
+                        <select class="form-select bg-dark border-secondary text-white" name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="Incoming">Incoming</option>
+                            <option value="Outgoing">Outgoing</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select bg-dark border-secondary text-white" name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Order Date</label>
+                        <input type="date" class="form-control bg-dark border-secondary text-white" name="date_order" required
+                               value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-white" name="customer_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Items Count</label>
+                        <input type="number" class="form-control bg-dark border-secondary text-white" name="items_count" required
+                               min="1" value="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="add_order" class="btn btn-primary">Add Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
